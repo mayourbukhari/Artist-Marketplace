@@ -2,7 +2,7 @@
 
 A modern e-commerce platform built with MERN stack that empowers artists to showcase and sell their artwork directly to collectors and art enthusiasts worldwide.
 
-![Artist Marketplace](https://i.ibb.co/jk3Fckfw/Chat-GPT-Image-Jun-24-2025-10-47-42-AM.png)
+![Artist Marketplace](https://images.unsplash.com/photo-1541961017774-22349e4a1262?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&q=80)
 
 ## ✨ Features
 
@@ -50,6 +50,23 @@ A modern e-commerce platform built with MERN stack that empowers artists to show
 - **SendGrid** - Email notifications
 - **Google Maps API** - Shipping addresses
 
+## 🚀 Quick Setup
+
+### Automated Setup (Recommended)
+```bash
+# Clone the repository
+git clone https://github.com/mayourbukhari/Artist-Marketplace.git
+cd Artist-Marketplace
+
+# For Windows
+setup.bat
+
+# For macOS/Linux
+chmod +x setup.sh && ./setup.sh
+```
+
+### Manual Setup
+
 ## 🚀 Quick Start
 
 ### Prerequisites
@@ -61,8 +78,8 @@ A modern e-commerce platform built with MERN stack that empowers artists to show
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/artist-marketplace.git
-   cd artist-marketplace
+   git clone https://github.com/mayourbukhari/Artist-Marketplace.git
+   cd Artist-Marketplace
    ```
 
 2. **Install dependencies**
@@ -300,9 +317,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Getting Help
 - 📖 Check the [Documentation](docs/)
-- 🐛 Report bugs in [Issues](https://github.com/yourusername/artist-marketplace/issues)
-- 💬 Join our [Discord Community](https://discord.gg/artist-marketplace)
-- 📧 Email support: support@artistmarketplace.com
+- 🐛 Report bugs in [Issues](https://github.com/mayourbukhari/Artist-Marketplace/issues)
+- 💬 Join our community discussions
+- 📧 Email support: mohsin@artistmarketplace.com
 
 ### FAQ
 
@@ -320,14 +337,22 @@ A: Shipping costs are automatically calculated based on artwork dimensions, weig
 
 ## 🔮 Roadmap
 
-### Phase 1 (Current)
+### Phase 1 (Completed)
 - [x] User authentication system
 - [x] Basic artwork upload and display
-- [x] Search and filtering
-- [x] Shopping cart and checkout
+- [x] Search and filtering infrastructure
+- [x] Shopping cart and checkout system
 - [x] Artist profiles
+- [x] Backend API with Express.js
+- [x] MongoDB database models
+- [x] Redux state management
+- [x] Material-UI component library
+- [x] File upload with Cloudinary integration
+- [x] Email notifications with SendGrid
+- [x] Payment processing with Stripe
 
-### Phase 2 (Next Release)
+### Phase 2 (In Progress)
+- [ ] Complete frontend gallery implementation
 - [ ] Advanced commission system
 - [ ] Artist verification process
 - [ ] Mobile app (React Native)
@@ -336,10 +361,11 @@ A: Shipping costs are automatically calculated based on artwork dimensions, weig
 
 ### Phase 3 (Future)
 - [ ] NFT marketplace integration
-- [ ] Virtual gallery tours
 - [ ] AI-powered art recommendations
 - [ ] Multi-language support
 - [ ] Artist mentorship program
+- [ ] Real-time chat system
+- [ ] Advanced analytics dashboard
 
 ## 🏆 Acknowledgments
 
