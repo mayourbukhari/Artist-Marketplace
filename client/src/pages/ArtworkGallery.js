@@ -66,7 +66,8 @@ const ArtworkGallery = () => {
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    dispatch(fetchArtworks(filters));
+    // Force refresh when component mounts to ensure latest data
+    dispatch(fetchArtworks({ ...filters, timestamp: Date.now() }));
   }, [dispatch, filters]);
 
   const handleFilterChange = (newFilters) => {

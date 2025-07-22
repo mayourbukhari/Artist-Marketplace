@@ -104,7 +104,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 // Database connection with enhanced configuration
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/artist-marketplace', {
+    const conn = await mongoose.connect(process.env.MONGODB_URI , {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       maxPoolSize: 10, // Maintain up to 10 socket connections

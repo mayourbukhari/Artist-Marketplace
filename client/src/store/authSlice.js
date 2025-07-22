@@ -82,6 +82,18 @@ export const removeFromWishlist = createAsyncThunk(
   }
 );
 
+export const updateProfile = createAsyncThunk(
+  'auth/updateProfile',
+  async (profileData, { rejectWithValue }) => {
+    try {
+      const response = await authService.updateProfile(profileData);
+      return response; // API interceptor already returns response.data
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update profile');
+    }
+  }
+);
+
 const initialState = {
   user: null,
   token: localStorage.getItem('token'),
@@ -190,6 +202,19 @@ const authSlice = createSlice({
       .addCase(removeFromWishlist.rejected, (state, action) => {
         state.isLoading = false;
         state.error = typeof action.payload === 'string' ? action.payload : action.payload?.message || 'Failed to remove from wishlist';
+      })
+      // Update Profile
+      .addCase(updateProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload.user;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = typeof action.payload === 'string' ? action.payload : action.payload?.message || 'Failed to update profile';
       });
   },
 });

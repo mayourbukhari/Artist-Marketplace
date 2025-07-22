@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   Container,
   Typography,
@@ -32,23 +32,25 @@ import {
   Delete,
   AddPhotoAlternate,
 } from '@mui/icons-material';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import artworkService from '../services/artworkService';
+import { createArtwork, fetchArtworks } from '../store/artworkSlice';
 import toast from 'react-hot-toast';
 
 const steps = ['Basic Information', 'Artwork Details', 'Pricing & Availability', 'Preview & Upload'];
 
 const categories = [
-  'Abstract',
-  'Landscape',
-  'Portrait',
-  'Still Life',
-  'Street Art',
-  'Digital Art',
-  'Photography',
-  'Sculpture',
-  'Mixed Media',
-  'Contemporary',
+  'painting',
+  'sculpture', 
+  'photography',
+  'drawing',
+  'printmaking',
+  'digital',
+  'mixed-media',
+  'textile',
+  'ceramics',
+  'jewelry',
+  'other'
 ];
 
 const mediums = [
@@ -66,6 +68,8 @@ const mediums = [
 
 const UploadArtwork = () => {
   const { user } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [artworkData, setArtworkData] = useState({
     title: '',
@@ -174,40 +178,107 @@ const UploadArtwork = () => {
       return;
     }
 
+    if (!artworkData.description.trim() || artworkData.description.trim().length < 10) {
+      toast.error('Please enter a description of at least 10 characters');
+      return;
+    }
+
+    if (!artworkData.category) {
+      toast.error('Please select a category');
+      return;
+    }
+
+    if (artworkData.isForSale && (!artworkData.price || artworkData.price <= 0)) {
+      toast.error('Please enter a valid price for artwork marked for sale');
+      return;
+    }
+
     setUploading(true);
     setUploadProgress(0);
 
     try {
       const uploadData = {
         ...artworkData,
-        images: selectedFiles
+        images: selectedFiles,
+        // Ensure price is always a number
+        price: artworkData.isForSale ? Number(artworkData.price) : 0,
+        // Set availability based on isForSale
+        availability: artworkData.isForSale ? 'available' : 'not-for-sale',
+        // Ensure status and isPublic are set correctly
+        status: 'published',
+        isPublic: true,
+        // Format dimensions as numbers
+        dimensions: {
+          width: artworkData.dimensions.width ? Number(artworkData.dimensions.width) : undefined,
+          height: artworkData.dimensions.height ? Number(artworkData.dimensions.height) : undefined,
+          depth: artworkData.dimensions.depth ? Number(artworkData.dimensions.depth) : undefined,
+        }
       };
 
-      await artworkService.createArtwork(uploadData);
-      toast.success('Artwork uploaded successfully!');
+      console.log('Upload data being sent:', uploadData);
+
+      // Use Redux action to create artwork and update state
+      const resultAction = await dispatch(createArtwork(uploadData));
       
-      // Reset form
-      setArtworkData({
-        title: '',
-        description: '',
-        category: '',
-        medium: '',
-        dimensions: {
-          width: '',
-          height: '',
-          depth: ''
-        },
-        price: '',
-        isForSale: true,
-        images: [],
-      });
-      setSelectedFiles([]);
-      setFilePreviews([]);
-      setActiveStep(0);
+      if (createArtwork.fulfilled.match(resultAction)) {
+        toast.success('Artwork uploaded successfully!');
+        
+        // Refresh the artworks list to include the new artwork
+        dispatch(fetchArtworks({}));
+        
+        // Reset form
+        setArtworkData({
+          title: '',
+          description: '',
+          category: '',
+          medium: '',
+          dimensions: {
+            width: '',
+            height: '',
+            depth: ''
+          },
+          price: '',
+          isForSale: true,
+          isCommissionable: false,
+          tags: [],
+          images: [],
+        });
+        setSelectedFiles([]);
+        setFilePreviews([]);
+        setActiveStep(0);
+        
+        // Navigate to gallery to see the uploaded artwork
+        setTimeout(() => {
+          navigate('/gallery');
+        }, 1000);
+      } else {
+        throw new Error(resultAction.error?.message || 'Upload failed');
+      }
       
     } catch (error) {
-      console.error('Upload error:', error);
-      toast.error(error.response?.data?.message || 'Failed to upload artwork');
+      console.error('Upload error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        fullError: error
+      });
+      
+      // Extract meaningful error message
+      let errorMessage = 'Failed to upload artwork';
+      
+      if (error.response?.data?.errors && Array.isArray(error.response.data.errors)) {
+        // Handle validation errors
+        const validationErrors = error.response.data.errors.map(err => err.msg || err.message).join(', ');
+        errorMessage = `Validation errors: ${validationErrors}`;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setUploading(false);
       setUploadProgress(0);
@@ -271,10 +342,12 @@ const UploadArtwork = () => {
                 value={artworkData.description}
                 onChange={(e) => handleInputChange('description', e.target.value)}
                 placeholder="Describe your artwork, inspiration, techniques used..."
+                required
+                helperText="Minimum 10 characters required"
               />
             </Grid>
             <Grid item xs={12} sm={6}>
-              <FormControl fullWidth>
+              <FormControl fullWidth required>
                 <InputLabel>Category</InputLabel>
                 <Select
                   value={artworkData.category}
@@ -283,7 +356,7 @@ const UploadArtwork = () => {
                 >
                   {categories.map((category) => (
                     <MenuItem key={category} value={category}>
-                      {category}
+                      {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
                     </MenuItem>
                   ))}
                 </Select>

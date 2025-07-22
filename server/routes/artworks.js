@@ -7,6 +7,7 @@ const { validateArtwork } = require('../middleware/validation');
 
 // Public routes
 router.get('/', optionalAuth, artworkController.getArtworks);
+router.get('/debug', artworkController.debugArtworks); // Debug route
 router.get('/:id', optionalAuth, artworkController.getArtworkById);
 router.get('/:id/related', artworkController.getRelatedArtworks);
 

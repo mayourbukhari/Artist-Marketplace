@@ -17,6 +17,8 @@ import Register from './pages/Register';
 import ArtworkGallery from './pages/ArtworkGallery';
 import ArtworkDetail from './pages/ArtworkDetail';
 import ArtistProfile from './pages/ArtistProfile';
+import Profile from './pages/Profile';
+import Cart from './pages/Cart';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
 import MentorshipPrograms from './pages/MentorshipPrograms';
@@ -84,6 +86,8 @@ function ThemedApp() {
               <Route path="/gallery" element={<ArtworkGallery />} />
               <Route path="/artwork/:id" element={<ArtworkDetail />} />
               <Route path="/artist/:id" element={<ArtistProfile />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/cart" element={<Cart />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/orders" element={<Orders />} />
               <Route path="/wishlist" element={<Wishlist />} />

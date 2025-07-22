@@ -79,6 +79,7 @@ const validateArtwork = [
     .isLength({ min: 10, max: 2000 })
     .withMessage('Description is required and must be between 10 and 2000 characters'),
   body('price')
+    .optional()
     .isFloat({ min: 0 })
     .withMessage('Price must be a positive number'),
   body('category')

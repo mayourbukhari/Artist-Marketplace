@@ -23,6 +23,9 @@ const getArtworks = async (req, res) => {
 
     // Build filter object
     const filter = { status: 'published', isPublic: true };
+    
+    console.log('Fetching artworks with filter:', filter);
+    console.log('Query parameters:', req.query);
 
     if (category) filter.category = category;
     if (minPrice || maxPrice) {
@@ -40,7 +43,23 @@ const getArtworks = async (req, res) => {
 
     // Build sort object
     const sort = {};
-    sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+    
+    // Map client-side sort values to database fields
+    let sortField = sortBy;
+    if (sortBy === 'newest') sortField = 'createdAt';
+    if (sortBy === 'oldest') sortField = 'createdAt';
+    if (sortBy === 'price-low') sortField = 'price';
+    if (sortBy === 'price-high') sortField = 'price';
+    if (sortBy === 'popular') sortField = 'views';
+    
+    // Determine sort order
+    let order = sortOrder === 'desc' ? -1 : 1;
+    if (sortBy === 'newest') order = -1; // newest first
+    if (sortBy === 'oldest') order = 1;  // oldest first
+    if (sortBy === 'price-low') order = 1;  // low to high
+    if (sortBy === 'price-high') order = -1; // high to low
+    
+    sort[sortField] = order;
 
     // Execute query with pagination
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -54,6 +73,15 @@ const getArtworks = async (req, res) => {
         .lean(),
       Artwork.countDocuments(filter)
     ]);
+    
+    console.log(`Found ${artworks.length} artworks out of ${total} total`);
+    console.log('Sample artwork data:', artworks.length > 0 ? {
+      id: artworks[0]._id,
+      title: artworks[0].title,
+      status: artworks[0].status,
+      isPublic: artworks[0].isPublic,
+      artist: artworks[0].artist
+    } : 'No artworks found');
 
     // Add image variants to each artwork
     const artworksWithVariants = artworks.map(artwork => ({
@@ -76,6 +104,38 @@ const getArtworks = async (req, res) => {
   } catch (error) {
     console.error('Get artworks error:', error);
     res.status(500).json({ message: 'Server error while fetching artworks' });
+  }
+};
+
+// Debug function to get all artworks without filters
+const debugArtworks = async (req, res) => {
+  try {
+    console.log('Debug: Fetching all artworks without filters');
+    
+    const allArtworks = await Artwork.find()
+      .populate('artist', 'artistProfile.name profile.firstName profile.lastName')
+      .sort({ createdAt: -1 })
+      .limit(20);
+    
+    console.log(`Debug: Found ${allArtworks.length} total artworks`);
+    
+    const summary = allArtworks.map(artwork => ({
+      id: artwork._id,
+      title: artwork.title,
+      status: artwork.status,
+      isPublic: artwork.isPublic,
+      category: artwork.category,
+      createdAt: artwork.createdAt,
+      artist: artwork.artist?.artistProfile?.name || `${artwork.artist?.profile?.firstName} ${artwork.artist?.profile?.lastName}` || 'Unknown'
+    }));
+    
+    res.json({
+      total: allArtworks.length,
+      artworks: summary
+    });
+  } catch (error) {
+    console.error('Debug artworks error:', error);
+    res.status(500).json({ message: 'Debug error' });
   }
 };
 
@@ -124,8 +184,19 @@ const getArtworkById = async (req, res) => {
 // Create new artwork
 const createArtwork = async (req, res) => {
   try {
+    console.log('Creating artwork with data:', {
+      body: req.body,
+      files: req.files?.length || 0,
+      user: req.user?.email
+    });
+    
     const artworkData = req.body;
     artworkData.artist = req.user._id;
+
+    // Ensure default values are set
+    if (!artworkData.status) artworkData.status = 'published';
+    if (artworkData.isPublic === undefined) artworkData.isPublic = true;
+    if (!artworkData.availability) artworkData.availability = 'available';
 
     // Handle image uploads if files are provided
     if (req.files && req.files.length > 0) {
@@ -149,11 +220,24 @@ const createArtwork = async (req, res) => {
       }
     }
 
+    console.log('Final artwork data before save:', artworkData);
+    
     const artwork = new Artwork(artworkData);
     await artwork.save();
+    
+    console.log('Artwork saved successfully:', {
+      id: artwork._id,
+      title: artwork.title,
+      status: artwork.status,
+      isPublic: artwork.isPublic,
+      availability: artwork.availability,
+      artist: artwork.artist
+    });
 
     const populatedArtwork = await Artwork.findById(artwork._id)
       .populate('artist', 'artistProfile.name profile.firstName profile.lastName');
+
+    console.log('Populated artwork retrieved for response');
 
     res.status(201).json({
       message: 'Artwork created successfully',
@@ -161,6 +245,25 @@ const createArtwork = async (req, res) => {
     });
   } catch (error) {
     console.error('Create artwork error:', error);
+    console.error('Error details:', {
+      message: error.message,
+      name: error.name,
+      errors: error.errors,
+      stack: error.stack
+    });
+    
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => ({
+        field: err.path,
+        message: err.message
+      }));
+      return res.status(400).json({ 
+        message: 'Validation error', 
+        errors: validationErrors 
+      });
+    }
+    
     res.status(500).json({ message: 'Server error while creating artwork' });
   }
 };
@@ -408,6 +511,7 @@ const getRelatedArtworks = async (req, res) => {
 
 module.exports = {
   getArtworks,
+  debugArtworks,
   getArtworkById,
   createArtwork,
   updateArtwork,

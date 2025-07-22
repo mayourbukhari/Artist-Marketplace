@@ -37,10 +37,11 @@
 | 9 | Database Design | 10 |
 | 10 | API Documentation | 11 |
 | 11 | User Interface Design | 12 |
-| 12 | Security Implementation | 13 |
-| 13 | Testing & Validation | 14 |
-| 14 | Future Enhancements | 15 |
-| 15 | References | 16 |
+| 12 | Frontend & Backend Design | 13 |
+| 13 | Security Implementation | 14 |
+| 14 | Testing & Validation | 15 |
+| 15 | Future Enhancements | 16 |
+| 16 | References | 17 |
 
 ---
 
@@ -445,7 +446,130 @@ PUT  /api/artists/:id      - Update artist profile
 
 ---
 
-## 12. Security Implementation
+## 12. Frontend & Backend Design
+
+This section provides a comprehensive overview of the application's architecture, including detailed route mappings, their purposes, logic implementation, and the packages used for each functionality.
+
+### Frontend Design (React.js Application)
+
+The frontend is built using React.js with Material-UI for the user interface components. Below is a detailed breakdown of all routes and their implementations:
+
+#### Frontend Routes & Components
+
+| Route | Purpose | Logic | Packages Used |
+|-------|---------|-------|---------------|
+| `/` | Home page with hero section and features | Landing page with statistics, features showcase, and CTA buttons | `@mui/material`, `react-router-dom`, `@mui/icons-material` |
+| `/login` | User authentication login | Form validation, JWT token handling, Redux state management | `react-redux`, `@mui/material`, `react-hot-toast`, `axios` |
+| `/register` | User registration for artists and collectors | Multi-step form, role selection, email verification | `@mui/material`, `react-router-dom`, `react-redux` |
+| `/gallery` | Artwork browsing with filters | Pagination, search, filtering, grid/list view toggle | `@mui/material`, `react-redux`, `@mui/icons-material` |
+| `/artwork/:id` | Individual artwork details | Image gallery, artist info, purchase options, related artworks | `@mui/material`, `react-router-dom`, `react-redux` |
+| `/artist/:id` | Artist profile view | Portfolio display, follow functionality, artwork collection | `@mui/material`, `react-router-dom`, `react-redux` |
+| `/dashboard` | User/Artist dashboard | Role-based content, statistics, quick actions, tabbed interface | `@mui/material`, `react-redux`, `@mui/icons-material` |
+| `/artist-profile` | Artist profile management | Profile editing, portfolio management, social media links | `@mui/material`, `react-redux`, `react-router-dom` |
+| `/upload-artwork` | Artwork upload for artists | Multi-step form, image upload, metadata input, validation | `@mui/material`, `react-redux`, `react-hot-toast` |
+| `/orders` | Order history and tracking | Order status display, payment tracking, delivery updates | `@mui/material`, `react-redux`, `@mui/icons-material` |
+| `/wishlist` | User's saved artworks | Wishlist management, add/remove functionality, quick purchase | `@mui/material`, `react-redux`, `@mui/icons-material` |
+| `/commissions` | Commission management | Request handling, communication, status tracking | `@mui/material`, `react-redux`, `@mui/icons-material` |
+| `/mentorships` | Mentorship programs | Program browsing, enrollment, session management | `@mui/material`, `react-redux`, `@mui/icons-material` |
+| `/mentorship-setup` | Artist mentorship setup | Profile creation, pricing, availability settings | `@mui/material`, `react-redux`, `@mui/icons-material` |
+| `/analytics` | Artist analytics dashboard | Charts, statistics, performance metrics, revenue tracking | `@mui/material`, `react-redux`, `@mui/icons-material` |
+| `/nft-marketplace` | NFT trading platform | Blockchain integration, digital asset management | `@mui/material`, `react-redux`, `@mui/icons-material` |
+| `/verification` | Artist verification process | Document upload, verification status, badge system | `@mui/material`, `react-redux`, `@mui/icons-material` |
+
+#### Key Frontend Packages & Their Purpose
+
+| Package | Purpose | Implementation |
+|---------|---------|----------------|
+| `@mui/material` | UI component library | Provides pre-built React components for consistent design |
+| `@mui/icons-material` | Icon library | Material Design icons for buttons, navigation, and visual elements |
+| `react-redux` | State management | Global state management for user auth, cart, artworks |
+| `@reduxjs/toolkit` | Redux utilities | Simplified Redux logic with createSlice and createAsyncThunk |
+| `react-router-dom` | Client-side routing | Navigation between pages, protected routes, URL parameters |
+| `react-hot-toast` | Notification system | User feedback for actions, error handling, success messages |
+| `axios` | HTTP client | API communication, request/response interceptors |
+| `react-hook-form` | Form management | Form validation, error handling, user input management |
+
+### Backend Design (Node.js/Express Application)
+
+The backend is built using Node.js with Express framework, MongoDB for data storage, and various middleware for security and functionality.
+
+#### Backend Routes & API Endpoints
+
+| Route | Purpose | Logic | Packages Used |
+|-------|---------|-------|---------------|
+| `/api/auth/register` | User registration | Password hashing, email verification, JWT token generation | `bcryptjs`, `jsonwebtoken`, `nodemailer` |
+| `/api/auth/login` | User authentication | Credential validation, JWT token creation, session management | `bcryptjs`, `jsonwebtoken`, `express-rate-limit` |
+| `/api/auth/profile` | User profile retrieval | Protected route, user data fetching, population of references | `jsonwebtoken`, `mongoose` |
+| `/api/artworks` | Artwork listing with filters | Pagination, search, filtering, sorting, population of artist data | `mongoose`, `cloudinary` |
+| `/api/artworks/:id` | Single artwork details | Artwork fetching, view increment, related artworks, like status | `mongoose`, `cloudinary` |
+| `/api/artworks` (POST) | Artwork creation | Image upload, metadata validation, artist verification | `multer`, `cloudinary`, `express-validator` |
+| `/api/artworks/:id/like` | Artwork like/unlike | Toggle like status, user authentication, like count update | `mongoose`, `jsonwebtoken` |
+| `/api/artists` | Artist listing | Artist profiles, artwork counts, filtering, pagination | `mongoose`, `express-validator` |
+| `/api/artists/:id` | Artist profile details | Artist data, artwork portfolio, follower count, statistics | `mongoose` |
+| `/api/artists/:id/follow` | Follow/unfollow artist | Toggle follow status, user authentication, notification | `mongoose`, `jsonwebtoken` |
+| `/api/orders` | Order management | Order creation, payment processing, status tracking | `mongoose`, `stripe`, `razorpay` |
+| `/api/commissions` | Commission handling | Request management, communication, file uploads | `mongoose`, `multer`, `nodemailer` |
+| `/api/mentorships` | Mentorship management | Program creation, enrollment, session scheduling | `mongoose`, `jsonwebtoken` |
+| `/api/recommendations` | AI recommendations | Personalized suggestions, similar artworks, trending content | `mongoose` |
+| `/api/verification` | Artist verification | Document upload, admin review, verification badge | `multer`, `cloudinary`, `mongoose` |
+| `/api/users` | User management | Admin panel, user statistics, role management | `mongoose`, `express-validator` |
+| `/api/nfts` | NFT marketplace | Blockchain integration, digital asset management | `mongoose`, `web3` |
+
+#### Core Backend Packages & Their Purpose
+
+| Package | Purpose | Implementation |
+|---------|---------|----------------|
+| `express` | Web framework | Server creation, routing, middleware integration |
+| `mongoose` | MongoDB ODM | Database modeling, schema validation, query building |
+| `bcryptjs` | Password hashing | Secure password storage, authentication |
+| `jsonwebtoken` | JWT authentication | Token generation, verification, protected routes |
+| `multer` | File upload | Image upload handling, file validation, storage |
+| `cloudinary` | Image management | Cloud storage, image optimization, URL generation |
+| `cors` | Cross-origin requests | Frontend-backend communication, security configuration |
+| `helmet` | Security middleware | HTTP headers security, XSS protection, CSRF prevention |
+| `express-rate-limit` | Rate limiting | API protection, brute force prevention |
+| `express-validator` | Input validation | Request validation, sanitization, error handling |
+| `nodemailer` | Email service | Email verification, notifications, password reset |
+| `stripe/razorpay` | Payment processing | Secure transactions, payment gateway integration |
+| `compression` | Response compression | Performance optimization, bandwidth reduction |
+| `morgan` | HTTP logging | Request logging, debugging, monitoring |
+
+#### Database Schema Design
+
+| Model | Purpose | Key Fields | Relationships |
+|-------|---------|------------|---------------|
+| `User` | User accounts | email, password, role, profile, artistProfile | References to artworks, orders, wishlist |
+| `Artwork` | Artwork catalog | title, description, images, price, category | References to artist (User), likes |
+| `Order` | Purchase tracking | items, total, status, payment | References to customer (User), artworks |
+| `Commission` | Custom work requests | title, description, budget, status | References to artist, client (User) |
+| `Mentorship` | Teaching programs | title, description, price, sessions | References to mentor (User) |
+| `VirtualTour` | Gallery tours | title, assets, viewpoints | References to creator (User) |
+| `NFT` | Digital assets | tokenId, metadata, blockchain | References to creator (User), artwork |
+
+#### Middleware & Security Implementation
+
+| Middleware | Purpose | Implementation |
+|------------|---------|----------------|
+| `auth` | Authentication | JWT token verification, user context injection |
+| `isArtist` | Role authorization | Artist role verification for protected routes |
+| `isAdmin` | Admin authorization | Admin role verification for management routes |
+| `upload` | File handling | Multer configuration for image uploads |
+| `validation` | Input validation | Express-validator rules for data sanitization |
+| `errorHandler` | Error management | Centralized error handling, logging |
+| `rateLimit` | Request limiting | IP-based rate limiting, DDoS protection |
+
+#### API Response Patterns
+
+| Response Type | Structure | Usage |
+|---------------|-----------|--------|
+| Success | `{ success: true, data: {...}, message: "..." }` | Successful operations |
+| Error | `{ success: false, message: "...", errors: [...] }` | Validation errors, failures |
+| Paginated | `{ data: [...], pagination: { page, total, pages } }` | List endpoints with pagination |
+| Authentication | `{ user: {...}, token: "...", message: "..." }` | Login, registration responses |
+
+---
+
+## 13. Security Implementation
 
 ### Authentication Security:
 - **JWT Tokens**: Secure token-based authentication
@@ -466,7 +590,7 @@ PUT  /api/artists/:id      - Update artist profile
 
 ---
 
-## 13. Testing & Validation
+## 14. Testing & Validation
 
 ### Frontend Testing:
 - **Component Testing**: React component unit tests
@@ -487,7 +611,7 @@ PUT  /api/artists/:id      - Update artist profile
 
 ---
 
-## 14. Future Enhancements
+## 15. Future Enhancements
 
 ### Short-term Enhancements:
 - **Virtual Art Tours**: 3D gallery experiences
@@ -505,7 +629,7 @@ PUT  /api/artists/:id      - Update artist profile
 
 ---
 
-## 15. References
+## 16. References
 
 ### Technical Documentation:
 1. **React.js Official Documentation** - https://reactjs.org/docs/

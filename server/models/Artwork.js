@@ -22,8 +22,11 @@ const artworkSchema = new mongoose.Schema({
   }],
   price: {
     type: Number,
-    required: true,
-    min: 0
+    required: function() {
+      return this.availability === 'available';
+    },
+    min: 0,
+    default: 0
   },
   originalPrice: Number, // For sale pricing
   currency: {
@@ -80,6 +83,10 @@ const artworkSchema = new mongoose.Schema({
     type: String,
     enum: ['available', 'sold', 'reserved', 'not-for-sale'],
     default: 'available'
+  },
+  isCommissionable: {
+    type: Boolean,
+    default: false
   },
   isFramed: Boolean,
   frameIncluded: Boolean,
